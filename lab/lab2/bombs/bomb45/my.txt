@@ -1,0 +1,339 @@
+phase_1:
+
+push %ebp：将当前函数的基址指针（ebp）的值保存在栈中(为了使用它所以先保存内容)
+mov %esp,%ebp：将当前栈指针（esp）的值复制给基址指针（ebp），建立一个新的栈帧。
+sub $0x8,%esp：将栈指针向下移动8个字节。(分配八个字节空间)
+movl $0x8049a08,0x4(%esp)：将0x8049a08的值存储在栈中。（栈中第一个数据）
+mov 0x8(%ebp),%eax：读取的数据从0x8(%ebp)中读取，0x4(%ebp)是函数调返回地址
+mov %eax,(%esp)：将eax寄存器的值存储在栈中。（栈中第二个数据）(输入的数据在栈顶)
+call 804914b <strings_not_equal>：调用strings_not_equal函数。
+test %eax,%eax：将eax寄存器的值与自身进行逻辑与运算。
+je 8048ba2 <phase_1+0x22>：如果结果为0，则跳转到8048ba2处。
+call 8049712 <explode_bomb>：调用explode_bomb函数，导致程序崩溃。
+leave：释放栈帧。
+ret：从函数返回。
+
+phase_2:
+
+
+ 8048ba4:	55                   	push   %ebp
+ 8048ba5:	89 e5                	mov    %esp,%ebp
+ 8048ba7:	83 ec 28             	sub    $0x28,%esp
+ 8048baa:	c7 45 fc 00 00 00 00 	movl   $0x0,-0x4(%ebp)
+ 8048bb1:	8d 45 e0             	lea    -0x20(%ebp),%eax
+ 8048bb4:	89 44 24 04          	mov    %eax,0x4(%esp)
+ 8048bb8:	8b 45 08             	mov    0x8(%ebp),%eax
+ 8048bbb:	89 04 24             	mov    %eax,(%esp)
+ 8048bbe:	e8 f5 04 00 00       	call   80490b8 <read_six_numbers>
+ 8048bc3:	c7 45 f8 00 00 00 00 	movl   $0x0,-0x8(%ebp)
+ 8048bca:	eb 27                	jmp    8048bf3 <phase_2+0x4f>
+ 8048bcc:	8b 45 f8             	mov    -0x8(%ebp),%eax
+ 8048bcf:	8b 54 85 e0          	mov    -0x20(%ebp,%eax,4),%edx
+ 8048bd3:	8b 45 f8             	mov    -0x8(%ebp),%eax
+ 8048bd6:	83 c0 03             	add    $0x3,%eax
+ 8048bd9:	8b 44 85 e0          	mov    -0x20(%ebp,%eax,4),%eax
+ 8048bdd:	39 c2                	cmp    %eax,%edx
+ 8048bdf:	74 05                	je     8048be6 <phase_2+0x42>
+ 8048be1:	e8 2c 0b 00 00       	call   8049712 <explode_bomb>
+ 8048be6:	8b 45 f8             	mov    -0x8(%ebp),%eax
+ 8048be9:	8b 44 85 e0          	mov    -0x20(%ebp,%eax,4),%eax
+ 8048bed:	01 45 fc             	add    %eax,-0x4(%ebp)
+ 8048bf0:	ff 45 f8             	incl   -0x8(%ebp)
+ 8048bf3:	83 7d f8 02          	cmpl   $0x2,-0x8(%ebp)
+ 8048bf7:	7e d3                	jle    8048bcc <phase_2+0x28>
+ 8048bf9:	83 7d fc 00          	cmpl   $0x0,-0x4(%ebp)
+ 8048bfd:	75 05                	jne    8048c04 <phase_2+0x60>
+ 8048bff:	e8 0e 0b 00 00       	call   8049712 <explode_bomb>
+ 8048c04:	c9                   	leave  
+ 8048c05:	c3                   	ret 
+
+
+phase_3:
+
+
+08048c06 <phase_3>:
+ 8048c06:	55                   	push   %ebp       //保存旧的基址指针（ebp）
+ 8048c07:	89 e5                	mov    %esp,%ebp  //将栈指针（esp）的值复制到基址指针（ebp）
+ 8048c09:	83 ec 38             	sub    $0x38,%    //在栈上为局部变量和缓冲区分配空间（56字节）
+ 8048c0c:	c7 45 f8 00 00 00 00 	movl   $0x0,-0x8(%ebp)
+ 8048c13:	8d 45 f0             	lea    -0x10(%ebp),%eax//value3
+ 8048c16:	89 44 24 10          	mov    %eax,0x10(%esp)
+ 8048c1a:	8d 45 ef             	lea    -0x11(%ebp),%eax//value2(char 一个字节)
+ 8048c1d:	89 44 24 0c          	mov    %eax,0xc(%esp)
+ 8048c21:	8d 45 f4             	lea    -0xc(%ebp),%eax//value1
+ 8048c24:	89 44 24 08          	mov    %eax,0x8(%esp)//读取输入
+ 8048c28:	c7 44 24 04 4a 9a 04 	movl   $0x8049a4a,0x4(%esp)//输入格式（"%d %c %d"）
+ 8048c2f:	08 
+ 8048c30:	8b 45 08             	mov    0x8(%ebp),%eax
+ 8048c33:	89 04 24             	mov    %eax,(%esp)
+ 8048c36:	e8 2d fc ff ff       	call   8048868 <sscanf@plt>
+ 8048c3b:	89 45 f8             	mov    %eax,-0x8(%ebp)//eax返回值
+ 8048c3e:	83 7d f8 02          	cmpl   $0x2,-0x8(%ebp)
+ 8048c42:	7f 05                	jg     8048c49 <phase_3+0x43>//返回值小于2爆炸
+ 8048c44:	e8 c9 0a 00 00       	call   8049712 <explode_bomb>
+ 8048c49:	8b 45 f4             	mov    -0xc(%ebp),%eax
+ 8048c4c:	89 45 dc             	mov    %eax,-0x24(%ebp)
+ 8048c4f:	83 7d dc 07          	cmpl   $0x7,-0x24(%ebp)
+ 8048c53:	0f 87 c0 00 00 00    	ja     8048d19 <phase_3+0x113>
+ 8048c59:	8b 55 dc             	mov    -0x24(%ebp),%edx
+ 8048c5c:	8b 04 95 54 9a 04 08 	mov    0x8049a54(,%edx,4),%eax//地址跳转（根据vlue1）（打印跳转地址）
+ 8048c63:	ff e0                	jmp    *%eax
+ 8048c65:	c6 45 ff 6f          	movb   $0x6f,-0x1(%ebp)//第一个跳转地址(0x6f=111)（value1==0）
+ 8048c69:	8b 45 f0             	mov    -0x10(%ebp),%eax（eax 保存value3的值）
+ 8048c6c:	3d 49 03 00 00       	cmp    $0x349,%eax（value3的值和0x398比较）
+ 8048c71:	0f 84 ab 00 00 00    	je     8048d22 <phase_3+0x11c>//相等则跳转否则爆炸
+ 8048c77:	e8 96 0a 00 00       	call   8049712 <explode_bomb>
+ 8048c7c:	e9 a1 00 00 00       	jmp    8048d22 <phase_3+0x11c>
+ 8048c81:	c6 45 ff 79          	movb   $0x79,-0x1(%ebp)//第二个跳转地址(0x79=121)
+ 8048c85:	8b 45 f0             	mov    -0x10(%ebp),%eax
+ 8048c88:	3d 2c 02 00 00       	cmp    $0x22c,%eax
+ 8048c8d:	0f 84 8f 00 00 00    	je     8048d22 <phase_3+0x11c>
+ 8048c93:	e8 7a 0a 00 00       	call   8049712 <explode_bomb>
+ 8048c98:	e9 85 00 00 00       	jmp    8048d22 <phase_3+0x11c>
+ 8048c9d:	c6 45 ff 7a          	movb   $0x7a,-0x1(%ebp)//第三个跳转地址(122)
+ 8048ca1:	8b 45 f0             	mov    -0x10(%ebp),%eax
+ 8048ca4:	83 f8 73             	cmp    $0x73,%eax
+ 8048ca7:	74 79                	je     8048d22 <phase_3+0x11c>
+ 8048ca9:	e8 64 0a 00 00       	call   8049712 <explode_bomb>
+ 8048cae:	eb 72                	jmp    8048d22 <phase_3+0x11c>
+ 8048cb0:	c6 45 ff 61          	movb   $0x61,-0x1(%ebp)//第四(97)
+ 8048cb4:	8b 45 f0             	mov    -0x10(%ebp),%eax
+ 8048cb7:	3d 40 01 00 00       	cmp    $0x140,%eax
+ 8048cbc:	74 64                	je     8048d22 <phase_3+0x11c>
+ 8048cbe:	e8 4f 0a 00 00       	call   8049712 <explode_bomb>
+ 8048cc3:	eb 5d                	jmp    8048d22 <phase_3+0x11c>
+ 8048cc5:	c6 45 ff 69          	movb   $0x69,-0x1(%ebp)//第五(105)
+ 8048cc9:	8b 45 f0             	mov    -0x10(%ebp),%eax
+ 8048ccc:	3d f2 01 00 00       	cmp    $0x1f2,%eax
+ 8048cd1:	74 4f                	je     8048d22 <phase_3+0x11c>
+ 8048cd3:	e8 3a 0a 00 00       	call   8049712 <explode_bomb>
+ 8048cd8:	eb 48                	jmp    8048d22 <phase_3+0x11c>
+ 8048cda:	c6 45 ff 72          	movb   $0x72,-0x1(%ebp)//第六(114)
+ 8048cde:	8b 45 f0             	mov    -0x10(%ebp),%eax
+ 8048ce1:	3d 9f 03 00 00       	cmp    $0x39f,%eax
+ 8048ce6:	74 3a                	je     8048d22 <phase_3+0x11c>
+ 8048ce8:	e8 25 0a 00 00       	call   8049712 <explode_bomb>
+ 8048ced:	eb 33                	jmp    8048d22 <phase_3+0x11c>
+ 8048cef:	c6 45 ff 6a          	movb   $0x6a,-0x1(%ebp)//第七(106)
+ 8048cf3:	8b 45 f0             	mov    -0x10(%ebp),%eax
+ 8048cf6:	3d 2e 02 00 00       	cmp    $0x22e,%eax
+ 8048cfb:	74 25                	je     8048d22 <phase_3+0x11c>
+ 8048cfd:	e8 10 0a 00 00       	call   8049712 <explode_bomb>
+ 8048d02:	eb 1e                	jmp    8048d22 <phase_3+0x11c>
+ 8048d04:	c6 45 ff 62          	movb   $0x62,-0x1(%ebp)//第八(98)
+ 8048d08:	8b 45 f0             	mov    -0x10(%ebp),%eax
+ 8048d0b:	3d 52 01 00 00       	cmp    $0x152,%eax
+ 8048d10:	74 10                	je     8048d22 <phase_3+0x11c>
+ 8048d12:	e8 fb 09 00 00       	call   8049712 <explode_bomb>
+ 8048d17:	eb 09                	jmp    8048d22 <phase_3+0x11c>
+ 8048d19:	c6 45 ff 63          	movb   $0x63,-0x1(%ebp)
+ 8048d1d:	e8 f0 09 00 00       	call   8049712 <explode_bomb>
+ 8048d22:	0f b6 45 ef          	movzbl -0x11(%ebp),%eax//eax保存value2
+ 8048d26:	38 45 ff             	cmp    %al,-0x1(%ebp)//al是eax的低8位（value2是否和它相等）
+ 8048d29:	74 05                	je     8048d30 <phase_3+0x12a>
+ 8048d2b:	e8 e2 09 00 00       	call   8049712 <explode_bomb>
+ 8048d30:	c9                   	leave  
+ 8048d31:	c3                   	ret    
+
+
+
+
+ 08048d72 <phase_4>:
+ 8048d72:	55                   	push   %ebp
+ 8048d73:	89 e5                	mov    %esp,%ebp
+ 8048d75:	83 ec 28             	sub    $0x28,%esp
+ 8048d78:	8d 45 f4             	lea    -0xc(%ebp),%eax
+ 8048d7b:	89 44 24 08          	mov    %eax,0x8(%esp)//保存输入
+ 8048d7f:	c7 44 24 04 74 9a 04 	movl   $0x8049a74,0x4(%esp)// p (char*)0x8049a74("%d")
+ 8048d86:	08 
+ 8048d87:	8b 45 08             	mov    0x8(%ebp),%eax//读取输入
+ 8048d8a:	89 04 24             	mov    %eax,(%esp)
+ 8048d8d:	e8 d6 fa ff ff       	call   8048868 <sscanf@plt>
+ 8048d92:	89 45 fc             	mov    %eax,-0x4(%ebp)
+ 8048d95:	83 7d fc 01          	cmpl   $0x1,-0x4(%ebp)//sscanf返回值和1比
+ 8048d99:	75 07                	jne    8048da2 <phase_4+0x30>//不等爆炸
+ 8048d9b:	8b 45 f4             	mov    -0xc(%ebp),%eax
+ 8048d9e:	85 c0                	test   %eax,%eax//比较输入值
+ 8048da0:	7f 05                	jg     8048da7 <phase_4+0x35>//大于0跳转否则爆炸
+ 8048da2:	e8 6b 09 00 00       	call   8049712 <explode_bomb>
+ 8048da7:	8b 45 f4             	mov    -0xc(%ebp),%eax
+ 8048daa:	89 04 24             	mov    %eax,(%esp)//输入值到栈顶
+ 8048dad:	e8 80 ff ff ff       	call   8048d32 <func4>
+ 8048db2:	89 45 f8             	mov    %eax,-0x8(%ebp)//func4返回值保存
+ 8048db5:	81 7d f8 e9 00 00 00 	cmpl   $0xe9,-0x8(%ebp)（要等于233）
+ 8048dbc:	74 05                	je     8048dc3 <phase_4+0x51>
+ 8048dbe:	e8 4f 09 00 00       	call   8049712 <explode_bomb>
+ 8048dc3:	c9                   	leave  
+ 8048dc4:	c3                   	ret  
+
+ 08048d32 <func4>:
+ 8048d32:	55                   	push   %ebp
+ 8048d33:	89 e5                	mov    %esp,%ebp
+ 8048d35:	53                   	push   %ebx
+ 8048d36:	83 ec 08             	sub    $0x8,%esp//在栈上为局部变量分配8字节的空间
+ 8048d39:	83 7d 08 01          	cmpl   $0x1,0x8(%ebp)//读取输入的值和1比较
+ 8048d3d:	7f 09                	jg     8048d48 <func4+0x16>大于1跳转
+ 8048d3f:	c7 45 f8 01 00 00 00 	movl   $0x1,-0x8(%ebp)//第一个变量保存1
+ 8048d46:	eb 21                	jmp    8048d69 <func4+0x37>
+ 8048d48:	8b 45 08             	mov    0x8(%ebp),%eax//保存输入的值（大于一跳转的位置）
+ 8048d4b:	48                   	dec    %eax//输入减一
+ 8048d4c:	89 04 24             	mov    %eax,(%esp)//输入值到栈顶
+ 8048d4f:	e8 de ff ff ff       	call   8048d32 <func4>
+ 8048d54:	89 c3                	mov    %eax,%ebx//保存返回值
+ 8048d56:	8b 45 08             	mov    0x8(%ebp),%eax//保存输入值
+ 8048d59:	83 e8 02             	sub    $0x2,%eax输入值减2
+ 8048d5c:	89 04 24             	mov    %eax,(%esp)输入值到栈顶
+ 8048d5f:	e8 ce ff ff ff       	call   8048d32 <func4>
+ 8048d64:	01 c3                	add    %eax,%ebx//两个返回值相加
+ 8048d66:	89 5d f8             	mov    %ebx,-0x8(%ebp)//保存到栈顶
+ 8048d69:	8b 45 f8             	mov    -0x8(%ebp),%eax//返回值（小于等于1跳转位置）
+ 8048d6c:	83 c4 08             	add    $0x8,%esp//回收栈上为局部变量分配的空间。
+ 8048d6f:	5b                   	pop    %ebx
+ 8048d70:	5d                   	pop    %ebp
+ 8048d71:	c3                   	ret    
+
+
+
+ 08048dc5 <phase_5>:
+ 8048dc5:	55                   	push   %ebp
+ 8048dc6:	89 e5                	mov    %esp,%ebp
+ 8048dc8:	83 ec 18             	sub    $0x18,%esp//在栈上为局部变量分配24字节的空间。
+ 8048dcb:	8b 45 08             	mov    0x8(%ebp),%eax//暂存输入
+ 8048dce:	89 04 24             	mov    %eax,(%esp)//输入指针到栈顶
+ 8048dd1:	e8 4b 03 00 00       	call   8049121 <string_length>
+ 8048dd6:	89 45 fc             	mov    %eax,-0x4(%ebp)//保存返回值
+ 8048dd9:	83 7d fc 06          	cmpl   $0x6,-0x4(%ebp)//返回值和6比较
+ 8048ddd:	74 05                	je     8048de4 <phase_5+0x1f>//相等则跳转否则爆炸
+ 8048ddf:	e8 2e 09 00 00       	call   8049712 <explode_bomb>
+ 8048de4:	c7 45 f8 00 00 00 00 	movl   $0x0,-0x8(%ebp)//保存i=0
+ 8048deb:	eb 20                	jmp    8048e0d <phase_5+0x48>
+ 8048ded:	8b 55 f8             	mov    -0x8(%ebp),%edx//暂存i
+ 8048df0:	8b 45 f8             	mov    -0x8(%ebp),%eax//eax=i
+ 8048df3:	03 45 08             	add    0x8(%ebp),%eax//输入地址+i(char)
+ 8048df6:	0f b6 00             	movzbl (%eax),%eax//保存char str[i]//char->short
+ 8048df9:	0f be c0             	movsbl %al,%eax//符号拓展
+ 8048dfc:	83 e0 0f             	and    $0xf,%eax//保留低4位
+ 8048dff:	0f b6 80 c0 a5 04 08 	movzbl 0x804a5c0(%eax),%eax// char->short(x/s 0x804a5c0 "isrveawhobpnutfg=\003")（暂存选的字符）
+ 8048e06:	88 44 15 f1          	mov    %al,-0xf(%ebp,%edx,1)//低8位存储到ebp+i-15;（存储处理输入后字符串）
+ 8048e0a:	ff 45 f8             	incl   -0x8(%ebp)//i++
+ 8048e0d:	83 7d f8 05          	cmpl   $0x5,-0x8(%ebp)//i<=5跳转
+ 8048e11:	7e da                	jle    8048ded <phase_5+0x28>
+ 8048e13:	c6 45 f7 00          	movb   $0x0,-0x9(%ebp)//添加'\0'
+ 8048e17:	c7 44 24 04 77 9a 04 	movl   $0x8049a77,0x4(%esp)//p (char*)0x8049a77 ( "saints")
+ 8048e1e:	08 
+ 8048e1f:	8d 45 f1             	lea    -0xf(%ebp),%eax//暂存存储处理输入后字符串首地址
+ 8048e22:	89 04 24             	mov    %eax,(%esp)//到栈顶
+ 8048e25:	e8 21 03 00 00       	call   804914b <strings_not_equal>
+ 8048e2a:	85 c0                	test   %eax,%eax//不同爆炸
+ 8048e2c:	74 05                	je     8048e33 <phase_5+0x6e>
+ 8048e2e:	e8 df 08 00 00       	call   8049712 <explode_bomb>
+ 8048e33:	c9                   	leave  
+ 8048e34:	c3                   	ret   
+
+
+
+
+ 08048e35 <phase_6>:
+ 8048e35:	55                   	push   %ebp
+ 8048e36:	89 e5                	mov    %esp,%ebp
+ 8048e38:	83 ec 48             	sub    $0x48,%esp   //开辟72字节
+ 8048e3b:	c7 45 f0 0c a6 04 08 	movl   $0x804a60c,-0x10(%ebp)   // 保存node1地址 x/3w 0x804a60c  687  1 134522368
+ 8048e42:	8d 45 d8             	lea    -0x28(%ebp),%eax //暂存地址（保存<read_six_numbers返回数组）
+ 8048e45:	89 44 24 04          	mov    %eax,0x4(%esp)   //保存数组地址
+ 8048e49:	8b 45 08             	mov    0x8(%ebp),%eax   //暂存输入
+ 8048e4c:	89 04 24             	mov    %eax,(%esp)      //输入的数据在栈顶
+ 8048e4f:	e8 64 02 00 00       	call   80490b8 <read_six_numbers>
+ 8048e54:	c7 45 f8 00 00 00 00 	movl   $0x0,-0x8(%ebp)  //i=0
+ 8048e5b:	eb 48                	jmp    8048ea5 <phase_6+0x70>
+ 8048e5d:	8b 45 f8             	mov    -0x8(%ebp),%eax  //暂存i
+ 8048e60:	8b 44 85 d8          	mov    -0x28(%ebp,%eax,4),%eax  //暂存num[i]
+ 8048e64:	85 c0                	test   %eax,%eax        //小于等于0爆炸
+ 8048e66:	7e 0c                	jle    8048e74 <phase_6+0x3f>
+ 8048e68:	8b 45 f8             	mov    -0x8(%ebp),%eax  //暂存i
+ 8048e6b:	8b 44 85 d8          	mov    -0x28(%ebp,%eax,4),%eax  //暂存num[i]
+ 8048e6f:	83 f8 06             	cmp    $0x6,%eax            //num[i]要<=6
+ 8048e72:	7e 05                	jle    8048e79 <phase_6+0x44>
+ 8048e74:	e8 99 08 00 00       	call   8049712 <explode_bomb>
+ 8048e79:	8b 45 f8             	mov    -0x8(%ebp),%eax  //暂存i
+ 8048e7c:	40                   	inc    %eax //i+1;
+ 8048e7d:	89 45 fc             	mov    %eax,-0x4(%ebp)  //保存j=i+1;
+ 8048e80:	eb 1a                	jmp    8048e9c <phase_6+0x67>
+ 8048e82:	8b 45 f8             	mov    -0x8(%ebp),%eax  //暂存i
+ 8048e85:	8b 54 85 d8          	mov    -0x28(%ebp,%eax,4),%edx  //num[i]
+ 8048e89:	8b 45 fc             	mov    -0x4(%ebp),%eax  //暂存j=i+1
+ 8048e8c:	8b 44 85 d8          	mov    -0x28(%ebp,%eax,4),%eax  //暂存num[j]
+ 8048e90:	39 c2                	cmp    %eax,%edx  //不等
+ 8048e92:	75 05                	jne    8048e99 <phase_6+0x64>
+ 8048e94:	e8 79 08 00 00       	call   8049712 <explode_bomb>
+ 8048e99:	ff 45 fc             	incl   -0x4(%ebp) //num[j]-1
+ 8048e9c:	83 7d fc 05          	cmpl   $0x5,-0x4(%ebp)  //j<=5(第二次跳转位置)
+ 8048ea0:	7e e0                	jle    8048e82 <phase_6+0x4d>
+ 8048ea2:	ff 45 f8             	incl   -0x8(%ebp)
+ 8048ea5:	83 7d f8 05          	cmpl   $0x5,-0x8(%ebp)//i<=5(第一次跳转位置)
+ 8048ea9:	7e b2                	jle    8048e5d <phase_6+0x28>//上面输入六个数字不等（循环结束）
+ 8048eab:	c7 45 f8 00 00 00 00 	movl   $0x0,-0x8(%ebp)  //int i=0
+ 8048eb2:	eb 34                	jmp    8048ee8 <phase_6+0xb3>
+ 8048eb4:	8b 45 f0             	mov    -0x10(%ebp),%eax //暂存687
+ 8048eb7:	89 45 f4             	mov    %eax,-0xc(%ebp)  //栈中上移一次687
+ 8048eba:	c7 45 fc 01 00 00 00 	movl   $0x1,-0x4(%ebp)  //栈底存一
+ 8048ec1:	eb 0c                	jmp    8048ecf <phase_6+0x9a>// 跳转
+ 8048ec3:	8b 45 f4             	mov    -0xc(%ebp),%eax //if num[i]>栈底
+ 8048ec6:	8b 40 08             	mov    0x8(%eax),%eax   //暂取num[i+2]
+ 8048ec9:	89 45 f4             	mov    %eax,-0xc(%ebp)  //保存num[i+2]到-0xc(%ebp)
+ 8048ecc:	ff 45 fc             	incl   -0x4(%ebp)       //栈底1++
+ 8048ecf:	8b 45 f8             	mov    -0x8(%ebp),%eax  //暂取i
+ 8048ed2:	8b 44 85 d8          	mov    -0x28(%ebp,%eax,4),%eax //暂取num[i]
+ 8048ed6:	3b 45 fc             	cmp    -0x4(%ebp),%eax  //比较栈底1和num[i]
+ 8048ed9:	7f e8                	jg     8048ec3 <phase_6+0x8e> num[i]>栈底1跳转
+ 8048edb:	8b 55 f8             	mov    -0x8(%ebp),%edx    //else 暂取i
+ 8048ede:	8b 45 f4             	mov    -0xc(%ebp),%eax    //暂取687
+ 8048ee1:	89 44 95 c0          	mov    %eax,-0x40(%ebp,%edx,4)  //687保存到 num2[i]
+ 8048ee5:	ff 45 f8             	incl   -0x8(%ebp)           //i++
+ 8048ee8:	83 7d f8 05          	cmpl   $0x5,-0x8(%ebp)   //i<=5
+ 8048eec:	7e c6                	jle    8048eb4 <phase_6+0x7f>
+ 8048eee:	8b 45 c0             	mov    -0x40(%ebp),%eax
+ 8048ef1:	89 45 f0             	mov    %eax,-0x10(%ebp)
+ 8048ef4:	8b 45 f0             	mov    -0x10(%ebp),%eax
+ 8048ef7:	89 45 f4             	mov    %eax,-0xc(%ebp)
+ 8048efa:	c7 45 f8 01 00 00 00 	movl   $0x1,-0x8(%ebp)
+ 8048f01:	eb 19                	jmp    8048f1c <phase_6+0xe7>
+ 8048f03:	8b 45 f8             	mov    -0x8(%ebp),%eax
+ 8048f06:	8b 54 85 c0          	mov    -0x40(%ebp,%eax,4),%edx
+ 8048f0a:	8b 45 f4             	mov    -0xc(%ebp),%eax
+ 8048f0d:	89 50 08             	mov    %edx,0x8(%eax)
+ 8048f10:	8b 45 f4             	mov    -0xc(%ebp),%eax
+ 8048f13:	8b 40 08             	mov    0x8(%eax),%eax
+ 8048f16:	89 45 f4             	mov    %eax,-0xc(%ebp)
+ 8048f19:	ff 45 f8             	incl   -0x8(%ebp)
+ 8048f1c:	83 7d f8 05          	cmpl   $0x5,-0x8(%ebp)
+ 8048f20:	7e e1                	jle    8048f03 <phase_6+0xce>
+ 8048f22:	8b 45 f4             	mov    -0xc(%ebp),%eax
+ 8048f25:	c7 40 08 00 00 00 00 	movl   $0x0,0x8(%eax)
+ 8048f2c:	8b 45 f0             	mov    -0x10(%ebp),%eax
+ 8048f2f:	89 45 f4             	mov    %eax,-0xc(%ebp)
+ 8048f32:	c7 45 f8 00 00 00 00 	movl   $0x0,-0x8(%ebp)
+ 8048f39:	eb 22                	jmp    8048f5d <phase_6+0x128>
+ 8048f3b:	8b 45 f4             	mov    -0xc(%ebp),%eax
+ 8048f3e:	8b 10                	mov    (%eax),%edx
+ 8048f40:	8b 45 f4             	mov    -0xc(%ebp),%eax
+ 8048f43:	8b 40 08             	mov    0x8(%eax),%eax
+ 8048f46:	8b 00                	mov    (%eax),%eax
+ 8048f48:	39 c2                	cmp    %eax,%edx
+ 8048f4a:	7d 05                	jge    8048f51 <phase_6+0x11c>
+ 8048f4c:	e8 c1 07 00 00       	call   8049712 <explode_bomb>
+ 8048f51:	8b 45 f4             	mov    -0xc(%ebp),%eax
+ 8048f54:	8b 40 08             	mov    0x8(%eax),%eax
+ 8048f57:	89 45 f4             	mov    %eax,-0xc(%ebp)
+ 8048f5a:	ff 45 f8             	incl   -0x8(%ebp)
+ 8048f5d:	83 7d f8 04          	cmpl   $0x4,-0x8(%ebp)
+ 8048f61:	7e d8                	jle    8048f3b <phase_6+0x106>
+ 8048f63:	c9                   	leave  
+ 8048f64:	c3                   	ret   
+
+
+x/3w 0x804a60c
+x/3w 0x804a600
+x/3w 0x804a5f4
+x/3w 0x804a5e8
+x/3w 0x804a5dc
+x/3w 0x804a5d0

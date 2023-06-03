@@ -1,0 +1,2 @@
+./mdriver -V  -f short1-bal.rep
+./mdriver -V  -f short2-bal.rep

